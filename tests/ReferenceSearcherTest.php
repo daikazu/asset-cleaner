@@ -4,26 +4,38 @@ declare(strict_types=1);
 
 use Daikazu\AssetCleaner\DTOs\ImageAsset;
 use Daikazu\AssetCleaner\Services\ReferenceSearcher;
-use Illuminate\Support\Facades\File;
 
 beforeEach(function () {
     $this->tempDir = sys_get_temp_dir().'/asset-cleaner-ref-test-'.uniqid();
-    File::makeDirectory($this->tempDir.'/public/images', 0755, true);
-    File::makeDirectory($this->tempDir.'/resources/views', 0755, true);
-    File::makeDirectory($this->tempDir.'/app', 0755, true);
+    mkdir($this->tempDir.'/public/images', 0755, true);
+    mkdir($this->tempDir.'/resources/views', 0755, true);
+    mkdir($this->tempDir.'/app', 0755, true);
 
     // Create test images
-    File::put($this->tempDir.'/public/images/hero-banner.png', 'fake-content');
-    File::put($this->tempDir.'/public/images/orphan-image.png', 'fake-content');
+    file_put_contents($this->tempDir.'/public/images/hero-banner.png', 'fake-content');
+    file_put_contents($this->tempDir.'/public/images/orphan-image.png', 'fake-content');
 
     // Create files that reference the image
-    File::put($this->tempDir.'/resources/views/home.blade.php', '<img src="/images/hero-banner.png">');
-    File::put($this->tempDir.'/app/Controller.php', '<?php $image = "some-other-image.png";');
+    file_put_contents($this->tempDir.'/resources/views/home.blade.php', '<img src="/images/hero-banner.png">');
+    file_put_contents($this->tempDir.'/app/Controller.php', '<?php $image = "some-other-image.png";');
 });
 
 afterEach(function () {
-    File::deleteDirectory($this->tempDir);
+    deleteDirectory($this->tempDir);
 });
+
+function deleteDirectory(string $dir): void
+{
+    if (! is_dir($dir)) {
+        return;
+    }
+    $files = array_diff(scandir($dir), ['.', '..']);
+    foreach ($files as $file) {
+        $path = $dir.'/'.$file;
+        is_dir($path) ? deleteDirectory($path) : unlink($path);
+    }
+    rmdir($dir);
+}
 
 test('it finds unused assets', function () {
     $searcher = new ReferenceSearcher(
@@ -60,8 +72,8 @@ test('it finds references using full path', function () {
 });
 
 test('it finds references using filename only', function () {
-    File::put($this->tempDir.'/resources/views/test.blade.php', '<img src="{{ asset("logo.png") }}">');
-    File::put($this->tempDir.'/public/images/logo.png', 'fake-content');
+    file_put_contents($this->tempDir.'/resources/views/test.blade.php', '<img src="{{ asset("logo.png") }}">');
+    file_put_contents($this->tempDir.'/public/images/logo.png', 'fake-content');
 
     $searcher = new ReferenceSearcher(
         searchPaths: ['resources'],
@@ -78,7 +90,7 @@ test('it finds references using filename only', function () {
 
 test('it searches only configured file extensions', function () {
     // Create a .txt file with a reference - should NOT be searched
-    File::put($this->tempDir.'/app/notes.txt', 'orphan-image.png');
+    file_put_contents($this->tempDir.'/app/notes.txt', 'orphan-image.png');
 
     $searcher = new ReferenceSearcher(
         searchPaths: ['app'],
@@ -95,8 +107,8 @@ test('it searches only configured file extensions', function () {
 });
 
 test('it excludes paths matching exclude patterns', function () {
-    File::makeDirectory($this->tempDir.'/vendor', 0755, true);
-    File::put($this->tempDir.'/vendor/package.php', 'orphan-image.png');
+    mkdir($this->tempDir.'/vendor', 0755, true);
+    file_put_contents($this->tempDir.'/vendor/package.php', 'orphan-image.png');
 
     $searcher = new ReferenceSearcher(
         searchPaths: ['vendor'],

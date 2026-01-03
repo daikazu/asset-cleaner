@@ -4,23 +4,34 @@ declare(strict_types=1);
 
 use Daikazu\AssetCleaner\DTOs\ImageAsset;
 use Daikazu\AssetCleaner\Services\AssetScanner;
-use Illuminate\Support\Facades\File;
 
 beforeEach(function () {
-    // Create a temporary directory structure for testing
     $this->tempDir = sys_get_temp_dir().'/asset-cleaner-test-'.uniqid();
-    File::makeDirectory($this->tempDir.'/public/images', 0755, true);
-    File::makeDirectory($this->tempDir.'/resources/images', 0755, true);
+    mkdir($this->tempDir.'/public/images', 0755, true);
+    mkdir($this->tempDir.'/resources/images', 0755, true);
 
     // Create test images
-    File::put($this->tempDir.'/public/images/logo.png', 'fake-png-content');
-    File::put($this->tempDir.'/public/images/hero.jpg', 'fake-jpg-content');
-    File::put($this->tempDir.'/resources/images/icon.svg', 'fake-svg-content');
+    file_put_contents($this->tempDir.'/public/images/logo.png', 'fake-png-content');
+    file_put_contents($this->tempDir.'/public/images/hero.jpg', 'fake-jpg-content');
+    file_put_contents($this->tempDir.'/resources/images/icon.svg', 'fake-svg-content');
 });
 
 afterEach(function () {
-    File::deleteDirectory($this->tempDir);
+    deleteDirectoryScanner($this->tempDir);
 });
+
+function deleteDirectoryScanner(string $dir): void
+{
+    if (! is_dir($dir)) {
+        return;
+    }
+    $files = array_diff(scandir($dir), ['.', '..']);
+    foreach ($files as $file) {
+        $path = $dir.'/'.$file;
+        is_dir($path) ? deleteDirectoryScanner($path) : unlink($path);
+    }
+    rmdir($dir);
+}
 
 test('it scans directories for image files', function () {
     $scanner = new AssetScanner(
@@ -68,8 +79,8 @@ test('it only scans configured image extensions', function () {
 });
 
 test('it excludes files matching exclude patterns', function () {
-    File::makeDirectory($this->tempDir.'/public/cache', 0755, true);
-    File::put($this->tempDir.'/public/cache/cached.png', 'fake-content');
+    mkdir($this->tempDir.'/public/cache', 0755, true);
+    file_put_contents($this->tempDir.'/public/cache/cached.png', 'fake-content');
 
     $scanner = new AssetScanner(
         scanPaths: ['public'],

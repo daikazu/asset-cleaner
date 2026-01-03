@@ -4,16 +4,28 @@ declare(strict_types=1);
 
 use Daikazu\AssetCleaner\DTOs\ImageAsset;
 use Daikazu\AssetCleaner\Services\ManifestManager;
-use Illuminate\Support\Facades\File;
 
 beforeEach(function () {
     $this->tempDir = sys_get_temp_dir().'/asset-cleaner-manifest-test-'.uniqid();
-    File::makeDirectory($this->tempDir, 0755, true);
+    mkdir($this->tempDir, 0755, true);
 });
 
 afterEach(function () {
-    File::deleteDirectory($this->tempDir);
+    deleteDirectoryManifest($this->tempDir);
 });
+
+function deleteDirectoryManifest(string $dir): void
+{
+    if (! is_dir($dir)) {
+        return;
+    }
+    $files = array_diff(scandir($dir), ['.', '..']);
+    foreach ($files as $file) {
+        $path = $dir.'/'.$file;
+        is_dir($path) ? deleteDirectoryManifest($path) : unlink($path);
+    }
+    rmdir($dir);
+}
 
 test('it generates a manifest file', function () {
     $manager = new ManifestManager(
@@ -21,7 +33,7 @@ test('it generates a manifest file', function () {
         basePath: $this->tempDir,
     );
 
-    File::put($this->tempDir.'/test.png', 'fake-content');
+    file_put_contents($this->tempDir.'/test.png', 'fake-content');
     $assets = collect([
         ImageAsset::fromPath($this->tempDir.'/test.png', $this->tempDir),
     ]);
@@ -43,7 +55,7 @@ test('it loads assets from manifest', function () {
         basePath: $this->tempDir,
     );
 
-    File::put($this->tempDir.'/test.png', 'fake-content');
+    file_put_contents($this->tempDir.'/test.png', 'fake-content');
     $originalAssets = collect([
         ImageAsset::fromPath($this->tempDir.'/test.png', $this->tempDir),
     ]);
@@ -73,7 +85,7 @@ test('it deletes the manifest file', function () {
         basePath: $this->tempDir,
     );
 
-    File::put($this->tempDir.'/test.png', 'fake-content');
+    file_put_contents($this->tempDir.'/test.png', 'fake-content');
     $assets = collect([
         ImageAsset::fromPath($this->tempDir.'/test.png', $this->tempDir),
     ]);
