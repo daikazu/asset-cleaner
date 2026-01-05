@@ -29,6 +29,7 @@ final class AssetDeleter
         $backedUp = 0;
         $failed = [];
         $totalSize = 0;
+        $timestamp = now()->format('Y-m-d_His');
 
         foreach ($assets as $asset) {
             if (! File::exists($asset->path)) {
@@ -46,7 +47,7 @@ final class AssetDeleter
 
             try {
                 if ($this->backupBeforeDelete) {
-                    $this->backupAsset($asset);
+                    $this->backupAsset($asset, $timestamp);
                     $backedUp++;
                 }
 
@@ -72,10 +73,9 @@ final class AssetDeleter
     /**
      * Backup an asset before deletion.
      */
-    private function backupAsset(ImageAsset $asset): void
+    private function backupAsset(ImageAsset $asset, string $timestamp): void
     {
         $backupDir = $this->basePath.DIRECTORY_SEPARATOR.$this->backupPath;
-        $timestamp = now()->format('Y-m-d_His');
         $backupFile = $backupDir.DIRECTORY_SEPARATOR.$timestamp.DIRECTORY_SEPARATOR.$asset->relativePath;
 
         $backupFileDir = dirname($backupFile);
