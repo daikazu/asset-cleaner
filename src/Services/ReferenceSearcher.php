@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Daikazu\AssetCleaner\Services;
 
+use Daikazu\AssetCleaner\Contracts\PatternGenerator;
 use Daikazu\AssetCleaner\DTOs\ImageAsset;
 use Illuminate\Support\Collection;
 use RecursiveDirectoryIterator;
@@ -16,12 +17,14 @@ final class ReferenceSearcher
      * @param  array<int, string>  $searchPaths
      * @param  array<int, string>  $searchExtensions
      * @param  array<int, string>  $excludePatterns
+     * @param  array<int, PatternGenerator>  $patternGenerators
      */
     public function __construct(
         private readonly array $searchPaths,
         private readonly array $searchExtensions,
         private readonly array $excludePatterns,
         private readonly string $basePath,
+        private readonly array $patternGenerators = [],
     ) {}
 
     /**
@@ -205,6 +208,13 @@ final class ReferenceSearcher
 
         // URL-encoded variants
         $patterns[] = rawurlencode($asset->filename);
+
+        // Add patterns from registered pattern generators
+        foreach ($this->patternGenerators as $generator) {
+            if ($generator->supports($asset)) {
+                $patterns = array_merge($patterns, $generator->generate($asset));
+            }
+        }
 
         return array_unique(array_filter($patterns));
     }

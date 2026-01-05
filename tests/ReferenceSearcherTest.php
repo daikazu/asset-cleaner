@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Daikazu\AssetCleaner\DTOs\ImageAsset;
+use Daikazu\AssetCleaner\PatternGenerators\BladeIconsPatternGenerator;
 use Daikazu\AssetCleaner\Services\ReferenceSearcher;
 
 beforeEach(function () {
@@ -135,4 +136,48 @@ test('it finds no references for truly orphaned assets', function () {
     $references = $searcher->findReferences($asset);
 
     expect($references)->toHaveCount(0);
+});
+
+test('it finds Blade Icons component references with pattern generator', function () {
+    // Create an SVG with PascalCase name
+    mkdir($this->tempDir.'/resources/svg', 0755, true);
+    file_put_contents($this->tempDir.'/resources/svg/ChevronRight.svg', '<svg></svg>');
+
+    // Create a Blade file that uses it as a Blade Icons component
+    file_put_contents($this->tempDir.'/resources/views/icon-test.blade.php', '<x-icon-chevron-right />');
+
+    $searcher = new ReferenceSearcher(
+        searchPaths: ['resources'],
+        searchExtensions: ['blade.php'],
+        excludePatterns: [],
+        basePath: $this->tempDir,
+        patternGenerators: [new BladeIconsPatternGenerator],
+    );
+
+    $asset = ImageAsset::fromPath($this->tempDir.'/resources/svg/ChevronRight.svg', $this->tempDir);
+    $references = $searcher->findReferences($asset);
+
+    expect($references)->toHaveCount(1);
+    expect($references->first())->toContain('icon-test.blade.php');
+});
+
+test('it finds SVG references via @svg directive with pattern generator', function () {
+    mkdir($this->tempDir.'/resources/svg', 0755, true);
+    file_put_contents($this->tempDir.'/resources/svg/ArrowUp.svg', '<svg></svg>');
+
+    // Create a Blade file using @svg directive
+    file_put_contents($this->tempDir.'/resources/views/svg-test.blade.php', '@svg("icon-arrow-up")');
+
+    $searcher = new ReferenceSearcher(
+        searchPaths: ['resources'],
+        searchExtensions: ['blade.php'],
+        excludePatterns: [],
+        basePath: $this->tempDir,
+        patternGenerators: [new BladeIconsPatternGenerator],
+    );
+
+    $asset = ImageAsset::fromPath($this->tempDir.'/resources/svg/ArrowUp.svg', $this->tempDir);
+    $references = $searcher->findReferences($asset);
+
+    expect($references)->toHaveCount(1);
 });

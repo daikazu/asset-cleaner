@@ -6,6 +6,8 @@ namespace Daikazu\AssetCleaner;
 
 use Daikazu\AssetCleaner\Commands\CleanCommand;
 use Daikazu\AssetCleaner\Commands\ScanCommand;
+use Daikazu\AssetCleaner\Contracts\PatternGenerator;
+use Daikazu\AssetCleaner\PatternGenerators\BladeIconsPatternGenerator;
 use Daikazu\AssetCleaner\Services\AssetDeleter;
 use Daikazu\AssetCleaner\Services\AssetScanner;
 use Daikazu\AssetCleaner\Services\ManifestManager;
@@ -51,6 +53,7 @@ class AssetCleanerServiceProvider extends PackageServiceProvider
                 searchExtensions: $config['search_extensions'],
                 excludePatterns: $config['exclude_patterns'],
                 basePath: $app->basePath(),
+                patternGenerators: $this->resolvePatternGenerators($config['pattern_generators'] ?? []),
             );
         });
 
@@ -85,5 +88,38 @@ class AssetCleanerServiceProvider extends PackageServiceProvider
         });
 
         $this->app->alias(AssetCleaner::class, 'asset-cleaner');
+    }
+
+    /**
+     * Resolve enabled pattern generators based on config.
+     *
+     * @param  array<string, mixed>  $generatorConfigs
+     * @return array<int, PatternGenerator>
+     */
+    private function resolvePatternGenerators(array $generatorConfigs): array
+    {
+        $generators = [];
+
+        /** @var array<string, class-string<PatternGenerator>> $availableGenerators */
+        $availableGenerators = [
+            'blade_icons' => BladeIconsPatternGenerator::class,
+        ];
+
+        foreach ($availableGenerators as $key => $generatorClass) {
+            $setting = $generatorConfigs[$key] ?? 'auto';
+
+            $enabled = match ($setting) {
+                true => true,
+                false => false,
+                'auto' => $generatorClass::isAvailable(),
+                default => false,
+            };
+
+            if ($enabled) {
+                $generators[] = new $generatorClass;
+            }
+        }
+
+        return $generators;
     }
 }

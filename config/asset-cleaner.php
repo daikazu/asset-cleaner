@@ -157,4 +157,19 @@ return [
     |
     */
     'backup_path' => '.asset-cleaner-backup',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pattern Generators
+    |--------------------------------------------------------------------------
+    |
+    | Enable or disable pattern generators for third-party package support.
+    | Each generator adds additional search patterns for specific asset types.
+    |
+    | Options: true, false, or 'auto' (auto-detect if package is installed)
+    |
+    */
+    'pattern_generators' => [
+        'blade_icons' => 'auto', // Blade UI Kit Icons (SVG component support)
+    ],
 ];
