@@ -107,6 +107,7 @@ return [
         '**/.git/**',
         '**/cache/**',
         '**/storage/framework/**',
+        '**/public/build/**',
     ],
 
     /*
@@ -121,7 +122,7 @@ return [
     'protected_patterns' => [
         '**/favicon.ico',
         '**/favicon.png',
-        '**/apple-touch-icon.png',
+        '**/apple-touch-icon*.png',
         '**/logo.*',
     ],
 
