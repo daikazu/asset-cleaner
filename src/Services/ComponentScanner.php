@@ -208,6 +208,10 @@ final class ComponentScanner
     /**
      * Derive component name from anonymous component file path.
      * Example: resources/views/components/forms/input.blade.php -> forms.input
+     *
+     * Handles Laravel's directory component conventions:
+     * - components/hero/index.blade.php -> hero
+     * - components/hero/hero.blade.php -> hero (directory matches filename)
      */
     private function deriveAnonymousComponentName(string $filePath, string $componentsDirectory): string
     {
@@ -223,6 +227,19 @@ final class ComponentScanner
         // Handle index.blade.php files (card/index.blade.php -> card)
         if (str_ends_with($name, '.index')) {
             $name = substr($name, 0, -6);
+        }
+
+        // Handle directory component pattern where filename matches parent directory
+        // e.g., hero/hero.blade.php -> hero (not hero.hero)
+        $parts = explode('.', $name);
+        if (count($parts) >= 2) {
+            $lastPart = $parts[count($parts) - 1];
+            $secondLastPart = $parts[count($parts) - 2];
+
+            if ($lastPart === $secondLastPart) {
+                array_pop($parts);
+                $name = implode('.', $parts);
+            }
         }
 
         return $name;

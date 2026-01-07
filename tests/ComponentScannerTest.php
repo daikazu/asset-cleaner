@@ -91,6 +91,50 @@ test('it handles index.blade.php as directory component', function () {
     expect($card->getTagName())->toBe('x-card');
 });
 
+test('it handles directory component with matching filename (hero/hero.blade.php)', function () {
+    mkdir($this->tempDir.'/resources/views/components/hero', 0755, true);
+    file_put_contents(
+        $this->tempDir.'/resources/views/components/hero/hero.blade.php',
+        '<section class="hero">{{ $slot }}</section>'
+    );
+
+    $scanner = new ComponentScanner(
+        anonymousPaths: ['resources/views/components'],
+        classPaths: [],
+        excludePatterns: [],
+        protectedPatterns: [],
+        basePath: $this->tempDir,
+    );
+
+    $components = $scanner->scan();
+    $hero = $components->first(fn (BladeComponent $c) => $c->name === 'hero');
+
+    expect($hero)->not->toBeNull();
+    expect($hero->getTagName())->toBe('x-hero');
+});
+
+test('it handles nested directory component with matching filename', function () {
+    mkdir($this->tempDir.'/resources/views/components/sections/hero', 0755, true);
+    file_put_contents(
+        $this->tempDir.'/resources/views/components/sections/hero/hero.blade.php',
+        '<section class="hero">{{ $slot }}</section>'
+    );
+
+    $scanner = new ComponentScanner(
+        anonymousPaths: ['resources/views/components'],
+        classPaths: [],
+        excludePatterns: [],
+        protectedPatterns: [],
+        basePath: $this->tempDir,
+    );
+
+    $components = $scanner->scan();
+    $hero = $components->first(fn (BladeComponent $c) => $c->name === 'sections.hero');
+
+    expect($hero)->not->toBeNull();
+    expect($hero->getTagName())->toBe('x-sections.hero');
+});
+
 test('it excludes paths matching exclude patterns', function () {
     mkdir($this->tempDir.'/resources/views/components/vendor', 0755, true);
     file_put_contents(
