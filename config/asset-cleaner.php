@@ -172,4 +172,120 @@ return [
     'pattern_generators' => [
         'blade_icons' => 'auto', // Blade UI Kit Icons (SVG component support)
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Blade Component Cleaner Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for scanning and cleaning unused Blade components.
+    |
+    */
+    'blade_cleaner' => [
+        /*
+        |--------------------------------------------------------------------------
+        | Anonymous Component Paths
+        |--------------------------------------------------------------------------
+        |
+        | Directories to scan for anonymous (file-based) Blade components.
+        | Paths are relative to the application base path.
+        |
+        */
+        'anonymous_paths' => [
+            'resources/views/components',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Class-Based Component Paths
+        |--------------------------------------------------------------------------
+        |
+        | Directories to scan for class-based Blade components.
+        | Paths are relative to the application base path.
+        |
+        */
+        'class_paths' => [
+            'app/View/Components',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Directories to Search for References
+        |--------------------------------------------------------------------------
+        |
+        | These directories will be searched for references to Blade components.
+        | Paths are relative to the application base path.
+        |
+        */
+        'search_paths' => [
+            'resources/views',
+            'app',
+            'routes',
+            'config',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | File Extensions to Search
+        |--------------------------------------------------------------------------
+        |
+        | Only files with these extensions will be searched for component references.
+        |
+        */
+        'search_extensions' => [
+            'blade.php',
+            'php',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Exclude Patterns
+        |--------------------------------------------------------------------------
+        |
+        | Patterns to exclude from scanning. Supports glob patterns.
+        | Components matching these patterns will be ignored.
+        |
+        */
+        'exclude_patterns' => [
+            '**/vendor/**',
+            '**/node_modules/**',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Protected Patterns
+        |--------------------------------------------------------------------------
+        |
+        | These component names or patterns will never be marked as unused.
+        | Useful for layout components or other critical components.
+        |
+        */
+        'protected_patterns' => [
+            'layout',
+            'layouts.*',
+            'app-layout',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Manifest File Path
+        |--------------------------------------------------------------------------
+        |
+        | Where to store the manifest of unused components.
+        | Path is relative to the application base path.
+        |
+        */
+        'manifest_path' => 'unused-components.json',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Backup Path
+        |--------------------------------------------------------------------------
+        |
+        | Directory where component backups will be stored (relative to project root).
+        | Separate from image asset backups for easier organization.
+        |
+        */
+        'backup_path' => '.blade-cleaner-backup',
+    ],
 ];
