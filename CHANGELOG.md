@@ -2,6 +2,12 @@
 
 All notable changes to `asset-cleaner` will be documented in this file.
 
+## v1.2.0 - 2026-01-07
+
+### What's Changed
+
+* feat: scan and remove unused blade components by @daikazu in https://github.com/daikazu/asset-cleaner/pull/2
+
 ## v1.1.0 - 2026-01-05
 
 Feature: Accounts for `blade-ui-kit/blade-icons` SVGs
