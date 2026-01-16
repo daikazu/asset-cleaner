@@ -103,7 +103,7 @@ return [
     */
     'exclude_patterns' => [
         '**/node_modules/**',
-        '**/vendor/**',
+        'vendor/**',
         '**/.git/**',
         '**/cache/**',
         '**/storage/framework/**',
@@ -247,7 +247,7 @@ return [
         |
         */
         'exclude_patterns' => [
-            '**/vendor/**',
+            'vendor/**',
             '**/node_modules/**',
         ],
 
