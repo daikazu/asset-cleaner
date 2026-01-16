@@ -56,6 +56,28 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Root Config Files
+    |--------------------------------------------------------------------------
+    |
+    | Specific files at the project root to search for asset references.
+    | Useful for config files like tailwind.config.js that may reference
+    | images via backgroundImage or other settings.
+    |
+    */
+    'root_config_files' => [
+        'tailwind.config.js',
+        'tailwind.config.ts',
+        'tailwind.config.cjs',
+        'tailwind.config.mjs',
+        'vite.config.js',
+        'vite.config.ts',
+        'webpack.mix.js',
+        'postcss.config.js',
+        'postcss.config.cjs',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | File Extensions to Search
     |--------------------------------------------------------------------------
     |

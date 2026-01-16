@@ -17,6 +17,7 @@ final class ReferenceSearcher
      * @param  array<int, string>  $searchPaths
      * @param  array<int, string>  $searchExtensions
      * @param  array<int, string>  $excludePatterns
+     * @param  array<int, string>  $rootConfigFiles
      * @param  array<int, PatternGenerator>  $patternGenerators
      */
     public function __construct(
@@ -24,6 +25,7 @@ final class ReferenceSearcher
         private readonly array $searchExtensions,
         private readonly array $excludePatterns,
         private readonly string $basePath,
+        private readonly array $rootConfigFiles = [],
         private readonly array $patternGenerators = [],
     ) {}
 
@@ -93,6 +95,7 @@ final class ReferenceSearcher
     {
         $files = [];
 
+        // Search configured directories
         foreach ($this->searchPaths as $searchPath) {
             $fullPath = $this->basePath.DIRECTORY_SEPARATOR.$searchPath;
 
@@ -122,6 +125,14 @@ final class ReferenceSearcher
                 }
 
                 $files[] = $path;
+            }
+        }
+
+        // Add root config files (e.g., tailwind.config.js)
+        foreach ($this->rootConfigFiles as $configFile) {
+            $fullPath = $this->basePath.DIRECTORY_SEPARATOR.$configFile;
+            if (is_file($fullPath)) {
+                $files[] = $fullPath;
             }
         }
 

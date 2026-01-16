@@ -181,3 +181,55 @@ test('it finds SVG references via @svg directive with pattern generator', functi
 
     expect($references)->toHaveCount(1);
 });
+
+test('it finds references in root config files like tailwind.config.js', function () {
+    // Create an assets directory with a background image
+    mkdir($this->tempDir.'/resources/assets', 0755, true);
+    file_put_contents($this->tempDir.'/resources/assets/bg-blocks.png', 'fake-content');
+
+    // Create tailwind.config.js with backgroundImage reference
+    file_put_contents($this->tempDir.'/tailwind.config.js', <<<'JS'
+        module.exports = {
+            theme: {
+                extend: {
+                    backgroundImage: {
+                        hero: 'url("../resources/assets/bg-blocks.png")',
+                    },
+                },
+            },
+        }
+        JS);
+
+    $searcher = new ReferenceSearcher(
+        searchPaths: ['resources'],
+        searchExtensions: ['blade.php', 'php'],
+        excludePatterns: [],
+        basePath: $this->tempDir,
+        rootConfigFiles: ['tailwind.config.js'],
+    );
+
+    $asset = ImageAsset::fromPath($this->tempDir.'/resources/assets/bg-blocks.png', $this->tempDir);
+    $references = $searcher->findReferences($asset);
+
+    expect($references)->toHaveCount(1);
+    expect($references->first())->toContain('tailwind.config.js');
+});
+
+test('it ignores missing root config files gracefully', function () {
+    $searcher = new ReferenceSearcher(
+        searchPaths: ['resources'],
+        searchExtensions: ['blade.php'],
+        excludePatterns: [],
+        basePath: $this->tempDir,
+        rootConfigFiles: ['tailwind.config.js', 'vite.config.ts'], // Files don't exist
+    );
+
+    $assets = collect([
+        ImageAsset::fromPath($this->tempDir.'/public/images/orphan-image.png', $this->tempDir),
+    ]);
+
+    $unused = $searcher->findUnusedAssets($assets);
+
+    // Should not throw an error, just skip missing files
+    expect($unused)->toHaveCount(1);
+});

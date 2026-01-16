@@ -61,6 +61,7 @@ class AssetCleanerServiceProvider extends PackageServiceProvider
                 searchExtensions: $config['search_extensions'],
                 excludePatterns: $config['exclude_patterns'],
                 basePath: $app->basePath(),
+                rootConfigFiles: $config['root_config_files'] ?? [],
                 patternGenerators: $this->resolvePatternGenerators($config['pattern_generators'] ?? []),
             );
         });
