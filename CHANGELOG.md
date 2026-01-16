@@ -2,6 +2,16 @@
 
 All notable changes to `asset-cleaner` will be documented in this file.
 
+## v1.2.1 - 2026-01-15
+
+### Fixed
+
+- Allow scanning `resources/views/vendor` for asset references (previously excluded by `**/vendor/**` pattern)
+- Require testbench ^10.1 to fix PHPUnit error handler bug in CI
+- Simplified CI workflow (Ubuntu-only, removed Windows)
+
+**Full Changelog**: https://github.com/daikazu/asset-cleaner/compare/v1.2.0...v1.2.1
+
 ## v1.2.0 - 2026-01-07
 
 ### What's Changed
