@@ -29,9 +29,9 @@ jobs:
             stability: prefer-lowest
         include:
           - laravel: 12.*
-            testbench: "^10.1"
+            testbench: ">=10.1,<11"
           - laravel: 11.*
-            testbench: "^9.0"
+            testbench: 9.*
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
