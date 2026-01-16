@@ -2,6 +2,16 @@
 
 All notable changes to `asset-cleaner` will be documented in this file.
 
+## v1.3.0 - 2026-01-16
+
+### Added
+
+- Root config file scanning for asset references (`root_config_files` config option)
+- Default scanning of `tailwind.config.js`, `vite.config.js`, and other build tool configs
+- Prevents false positives for images referenced in Tailwind's `backgroundImage` config
+
+**Full Changelog**: https://github.com/daikazu/asset-cleaner/compare/v1.2.1...v1.3.0
+
 ## v1.2.1 - 2026-01-15
 
 ### Fixed
