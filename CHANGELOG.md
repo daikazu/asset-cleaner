@@ -2,6 +2,10 @@
 
 All notable changes to `asset-cleaner` will be documented in this file.
 
+## v1.4.0 - 2026-03-17
+
+Added Laravel 13 support
+
 ## v1.3.0 - 2026-01-16
 
 ### Added
